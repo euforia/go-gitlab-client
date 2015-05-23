@@ -14,5 +14,5 @@ func TestResourceUrl(t *testing.T) {
 
 func TestEncodeParams(t *testing.T) {
 	gitlab := NewGitlab("http://base_url/", "api_path", "token")
-	assert.Equal(t, gitlab.EncodedParams(map[string]string{"t1": "v1", "t2": "v2"}), "&t1=v1&t2=v2")
+	assert.Equal(t, gitlab.EncodedParams(map[string]string{"t1": "v1", "t2": "v2"}), "t1=v1&t2=v2")
 }

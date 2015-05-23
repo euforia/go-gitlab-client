@@ -217,7 +217,7 @@ func (g *Gitlab) RepoCreateFile(id, file_path, branch_name, encoding, content, c
 
 	reqUrl, opaque := g.ResourceUrlRaw(repo_url_files, map[string]string{":id": id})
 
-	reqUrl += g.EncodedParams(map[string]string{
+	reqUrl += "&" + g.EncodedParams(map[string]string{
 		"file_path":      file_path,
 		"branch_name":    branch_name,
 		"encoding":       encoding,
