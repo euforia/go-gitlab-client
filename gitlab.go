@@ -64,10 +64,10 @@ func (g *Gitlab) ResourceUrl(url string, params map[string]string) string {
 func (g *Gitlab) EncodedParams(params map[string]string) string {
 	paramsStr := "&"
 	for k, v := range params {
-		k + "=" + url.QueryEscape(v) + "&"
+		paramsStr += k + "=" + url.QueryEscape(v) + "&"
 	}
 
-	return paramsStr[len(paramsStr)-1]
+	return paramsStr[:len(paramsStr)-1]
 }
 
 func (g *Gitlab) buildAndExecRequest(method, url string, body []byte) ([]byte, error) {
