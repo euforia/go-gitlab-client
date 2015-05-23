@@ -12,6 +12,7 @@ const (
 	repo_url_commits  = "/projects/:id/repository/commits"          // List repository commits
 	repo_url_tree     = "/projects/:id/repository/tree"             // List repository tree
 	repo_url_raw_file = "/projects/:id/repository/blobs/:sha"       // Get raw file content for specific commit/branch
+	repo_url_files    = "/projects/:id/repository/files"            // Create new file
 )
 
 type BranchCommit struct {
@@ -199,4 +200,35 @@ func (g *Gitlab) RepoRawFile(id, sha, filepath string) ([]byte, error) {
 	contents, err := g.buildAndExecRequestRaw("GET", url, opaque, nil)
 
 	return contents, err
+}
+
+/*
+	Create new file
+
+	id : project id (int) as a string
+*/
+func (g *Gitlab) RepoCreateFile(id, file_path, branch_name, encoding, content, commit_message string) (map[string]string, error) {
+
+	var (
+		resp     map[string]string
+		err      error
+		contents []byte
+	)
+
+	reqUrl, opaque := g.ResourceUrlRaw(repo_url_files, map[string]string{":id": id})
+
+	reqUrl += g.EncodedParams(map[string]string{
+		"file_path":      file_path,
+		"branch_name":    branch_name,
+		"encoding":       encoding,
+		"commit_message": commit_message,
+		"content":        content,
+	})
+
+	if contents, err = g.buildAndExecRequestRaw("POST", reqUrl, opaque, nil); err != nil {
+		return resp, err
+	}
+
+	err = json.Unmarshal(contents, &resp)
+	return resp, err
 }
