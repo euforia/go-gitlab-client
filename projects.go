@@ -2,6 +2,7 @@ package gogitlab
 
 import (
 	"encoding/json"
+	"net/url"
 )
 
 const (
@@ -82,7 +83,7 @@ and its project name like this:
 */
 func (g *Gitlab) Project(id string) (*Project, error) {
 
-	url, opaque := g.ResourceUrlRaw(project_url, map[string]string{":id": id})
+	url, opaque := g.ResourceUrlRaw(projects_url, map[string]string{":id": id})
 
 	var project *Project
 
@@ -92,6 +93,16 @@ func (g *Gitlab) Project(id string) (*Project, error) {
 	}
 
 	return project, err
+}
+
+func (g *Gitlab) CreateProject(name string) error {
+	eUrl, opaque := g.ResourceUrlRaw(projects_url, nil)
+
+	body := url.Values{"name": []string{name}}
+
+	_, err := g.buildAndExecRequestRaw("POST", eUrl, opaque, []byte(body.Encode()))
+
+	return err
 }
 
 /*
