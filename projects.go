@@ -2,6 +2,7 @@ package gogitlab
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 )
 
@@ -83,7 +84,7 @@ and its project name like this:
 */
 func (g *Gitlab) Project(id string) (*Project, error) {
 
-	url, opaque := g.ResourceUrlRaw(projects_url, map[string]string{":id": id})
+	url, opaque := g.ResourceUrlRaw(project_url, map[string]string{":id": id})
 
 	var project *Project
 
@@ -95,12 +96,29 @@ func (g *Gitlab) Project(id string) (*Project, error) {
 	return project, err
 }
 
+/* Create project as authed user */
 func (g *Gitlab) CreateProject(name string) error {
 	eUrl, opaque := g.ResourceUrlRaw(projects_url, nil)
 
 	body := url.Values{"name": []string{name}}
 
 	_, err := g.buildAndExecRequestRaw("POST", eUrl, opaque, []byte(body.Encode()))
+
+	return err
+}
+
+func (g *Gitlab) CreateUserProject(username, name string) error {
+	user, err := g.UserByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	eUrl, opaque := g.ResourceUrlRaw(projects_url+"/user/:user_id",
+		map[string]string{":user_id": fmt.Sprintf("%d", user.Id)})
+
+	body := url.Values{"name": []string{name}}
+
+	_, err = g.buildAndExecRequestRaw("POST", eUrl, opaque, []byte(body.Encode()))
 
 	return err
 }

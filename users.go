@@ -2,6 +2,8 @@ package gogitlab
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/url"
 )
 
 const (
@@ -29,7 +31,7 @@ type User struct {
 
 func (g *Gitlab) Users() ([]*User, error) {
 
-	url := g.ResourceUrl(user_url, nil)
+	url := g.ResourceUrl(users_url, nil)
 
 	var users []*User
 
@@ -39,6 +41,31 @@ func (g *Gitlab) Users() ([]*User, error) {
 	}
 
 	return users, err
+}
+
+/* Get/Search for user by username */
+func (g *Gitlab) UserByUsername(username string) (*User, error) {
+	resourceUrl := g.ResourceUrl(users_url, nil)
+
+	body := url.Values{"search": []string{username}}
+	resourceUrl += "&" + body.Encode()
+
+	contents, err := g.buildAndExecRequest("GET", resourceUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var user []User
+	if err = json.Unmarshal(contents, &user); err != nil {
+		return nil, err
+	}
+
+	if len(user) < 1 {
+		return nil, fmt.Errorf("User not found: %s", username)
+	} else if len(user) > 1 {
+		return nil, fmt.Errorf("Multiple users found: %s", contents)
+	}
+	return &user[0], err
 }
 
 /*
